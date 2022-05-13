@@ -1,0 +1,448 @@
+Private Sub Label1_Click()
+
+End Sub
+
+************************************************************
+
+Private Sub CB_Cancela_Click()
+	Application.Quit
+End Sub
+
+************************************************************
+
+Private Sub CB_OK_Click()
+Dim G_usuario As String
+'Dim G_senha As String
+'Dim G_previlegio As String
+'Dim G_cont As Integer
+
+If TextBoxUsuario.Text = "Gutemberg" And TextBoxSenha.Text = "jajajo" Then
+    Worksheets("GuardaUsuario").Visible = True
+    Worksheets("GuardaUsuario").Activate
+    Range("XFD1").Value = "2"
+    Worksheets("Menu").Activate
+    Unload UserFormLogin
+    Application.Visible = True
+    G_usuario = "S"
+    Worksheets("GuardaUsuario").Visible = False
+    Exit Sub
+Else
+    Worksheets("GuardaUsuario").Visible = True
+'End If
+
+    If TextBoxUsuario.Text = "" Or TextBoxSenha.Text = "" Then
+        MsgBox ("Informe Usuário e Senha para prosseguir"), vbInformation, "Aviso do Sistema"
+    Else
+        Worksheets("GuardaUsuario").Activate
+        G_cont = 6
+        Do While Range("XFB" & G_cont).Value <> ""
+            If Range("XFB" & G_cont).Value = TextBoxUsuario.Text And Range("XFC" & G_cont).Value = TextBoxSenha.Text Then
+                Range("XFD1").Value = Range("XFD" & G_cont).Value
+                Worksheets("Menu").Activate
+                Unload UserFormLogin
+                Application.Visible = True
+                G_usuario = "S"
+            Else
+                G_usuario = "N"
+            End If
+            G_cont = G_cont + 1
+        Loop
+    End If
+    If G_usuario = "N" Then
+        MsgBox ("Usuário ou Senha invalido. Tente novamente"), vbInformation, "Aviso do Sistema"
+    End If
+End If
+End Sub
+
+Private Sub UserForm_Click()
+
+End Sub
+
+Private Sub UserForm_Initialize()
+
+Application.Visible = False
+
+End Sub
+
+Private Sub UserForm_QueryClose(Cancel As Integer, CloseMode As Integer)
+
+If CloseMode = vbFormControlMenu Then
+    Cancel = True
+End If
+
+End Sub
+
+************************************************************
+
+Sub Cadastro()
+	Dim contador As Integer
+	Dim teste, teste1 As String
+	Dim descr As String
+	Dim unida As String
+	Dim estmi As Integer
+	Dim estma As Integer
+	Dim preco As Double
+	Dim lucro As Double
+	Dim venda As Double
+
+	Worksheets("Cadastro").Activate
+	teste = Range("c5").Value
+	Worksheets("Produtos").Activate
+	contador = 6
+	Do While Range("B" & contador).Value <> ""
+	   teste1 = Range("B" & contador).Value
+	   If teste1 = teste Then
+		  Worksheets("Cadastro").Activate
+		  MsgBox ("Produto já cadastrado")
+		  Range("c5").Activate
+		  Exit Sub
+	   End If
+	   contador = contador + 1
+	Loop
+	Worksheets("Cadastro").Activate
+	descr = Range("c5").Value
+	unida = Range("c7").Value
+	estmi = Range("c9").Value
+	estma = Range("c11").Value
+	preco = Range("c13").Value
+	lucro = Range("c15").Value
+	venda = (preco * lucro / 100) + preco
+	   
+	Worksheets("Produtos").Activate
+	Range("a5").Select
+	   Do
+		If Not (IsEmpty(ActiveCell)) Then
+			ActiveCell.Offset(1, 0).Select
+		End If
+	   Loop Until IsEmpty(ActiveCell) = True
+	   
+	   ActiveCell.Offset(0, 1).Value = descr
+	   ActiveCell.Offset(0, 2).Value = unida
+	   ActiveCell.Offset(0, 3).Value = estmi
+	   ActiveCell.Offset(0, 4).Value = estma
+	   ActiveCell.Offset(0, 5).Value = preco
+	   ActiveCell.Offset(0, 6).Value = lucro
+	   ActiveCell.Offset(0, 7).Value = venda
+	   
+	   If IsNumeric(ActiveCell.Offset(-1, 0)) Then
+			ActiveCell = ActiveCell.Offset(-1, 0) + 1
+	   Else
+			ActiveCell = 1
+	   End If
+	 Sheets("Cadastro").Select
+	 Range("C5").Clear
+	 Range("C7").Clear
+	 Range("C9").Clear
+	 Range("C11").Clear
+	 Range("C13").Clear
+	 Range("C15").Clear
+	 Range("C5").Select
+End Sub
+
+************************************************************
+
+Sub Estoque()
+    Range("A5:C506").Select
+    Selection.ClearContents
+    Range("A5").Select
+    ActiveCell.FormulaR1C1 = "=Produtos!RC"
+    Range("B5").Select
+    ActiveCell.FormulaR1C1 = "=Produtos!RC"
+    Range("C5").Select
+    ActiveCell.FormulaR1C1 = "=Produtos!RC"
+    Range("A5:C5").Select
+    Selection.Copy
+    Range("A6:A506").Select
+    ActiveSheet.Paste
+    Application.CutCopyMode = False
+    Range("B2").Select
+End Sub
+
+************************************************************
+
+Sub Comprar()
+    Range("A5:C506").Select
+    Selection.ClearContents
+    Sheets("Produtos").Select
+    Range("A5:B506").Select
+    Selection.Copy
+    Sheets("Comprar").Select
+    Range("A5").Select
+    ActiveSheet.Paste
+    Range("C5").Select
+    Application.CutCopyMode = False
+    ActiveCell.FormulaR1C1 = _
+      "=IF(Estoque!RC[3]<Produtos!RC[1],Produtos!RC[2]-Estoque!RC[3],0)"
+    Range("C5").Select
+    Selection.Copy
+    Range("C6:C506").Select
+    ActiveSheet.Paste
+    Range("A4:C4").Select
+    Selection.AutoFilter
+    ActiveSheet.Range("$A$4:$C$4").AutoFilter Field:=3, Criteria1:=">0", _
+        Operator:=xlAnd
+End Sub
+
+************************************************************
+
+Sub CadUsuario()
+	Dim nome As String
+   If Range("C7").Value = "" Then
+		MsgBox ("Informe o nome do Usuário"), vbInformation, "Informação do Sistema"
+		Range("C7").Select
+		Exit Sub
+	Else
+		nome = Range("C7").Value
+	End If
+	
+	If Range("C9").Value = "" Then
+		MsgBox ("Informe a senha do Usuário"), vbInformation, "Informação do Sistema"
+		Range("C9").Select
+		Exit Sub
+	End If
+	
+	If Range("C11").Value = "" Then
+		MsgBox ("Informe o previlégio do Usuário"), vbInformation, "Informação do Sistema"
+		Range("C11").Select
+		Exit Sub
+	End If
+	
+	Sheets("GuardaUsuario").Visible = True
+	Sheets("GuardaUsuario").Select
+	cont = 6
+	Do While Range("XFB" & cont).Value <> ""
+		If Range("XFB" & cont).Value = nome Then
+			MsgBox ("Usuário já existe"), vbInformation, "Informação do Sistema"
+			Sheets("CadUsuario").Select
+			Range("C7").Select
+			Sheets("GuardaUsuario").Visible = False
+			Exit Sub
+		End If
+		cont = cont + 1
+	Loop
+	Sheets("CadUsuario").Select
+	Range("C5").Select
+	Selection.Copy
+	Sheets("GuardaUsuario").Select
+	Range("XFA5").Select
+	ActiveSheet.Paste
+	Sheets("CadUsuario").Select
+	Range("C7").Select
+	Application.CutCopyMode = False
+	Selection.Copy
+	Sheets("GuardaUsuario").Select
+	Range("XFB5").Select
+	ActiveSheet.Paste
+	Sheets("CadUsuario").Select
+	Range("C9").Select
+	Application.CutCopyMode = False
+	Selection.Copy
+	Sheets("GuardaUsuario").Select
+	Range("XFC5").Select
+	ActiveSheet.Paste
+	Sheets("CadUsuario").Select
+	Range("C11").Select
+	Application.CutCopyMode = False
+	Selection.Copy
+	Sheets("GuardaUsuario").Select
+	Range("XFD5").Select
+	ActiveSheet.Paste
+	Rows("5:5").Select
+	Range("XEM5").Activate
+	Application.CutCopyMode = False
+	Selection.Insert Shift:=xlDown, CopyOrigin:=xlFormatFromLeftOrAbove
+	Sheets("CadUsuario").Select
+	'Range("C5").Select
+	'Selection.ClearContents
+	Range("C7").Select
+	Selection.ClearContents
+	Range("C9").Select
+	Selection.ClearContents
+	Range("C11").Select
+	Selection.ClearContents
+	Range("C7").Select
+	Sheets("GuardaUsuario").Visible = False
+End Sub
+
+************************************************************
+
+Sub FluxoEntrada()
+    Range("C5").Select
+    Selection.Copy
+    Sheets("Entrada").Select
+    Range("A5").Select
+    ActiveSheet.Paste
+    Sheets("Fluxo").Select
+    Range("C7").Select
+    Application.CutCopyMode = False
+    Selection.Cut
+    Sheets("Entrada").Select
+    Range("B5").Select
+    ActiveSheet.Paste
+    Sheets("Fluxo").Select
+    Range("C9").Select
+    Selection.Cut
+    Sheets("Entrada").Select
+    Range("C5").Select
+    ActiveSheet.Paste
+    Rows("5:5").Select
+    Selection.Insert Shift:=xlDown, CopyOrigin:=xlFormatFromLeftOrAbove
+    Sheets("Fluxo").Select
+    Range("C7").Select
+End Sub
+
+************************************************************
+
+Sub FluxoSaida()
+    Range("C5").Select
+    Selection.Copy
+    Sheets("Saida").Select
+    Range("A5").Select
+    ActiveSheet.Paste
+    Sheets("Fluxo").Select
+    Range("C7").Select
+    Application.CutCopyMode = False
+    Selection.Cut
+    Sheets("Saida").Select
+    Range("B5").Select
+    ActiveSheet.Paste
+    Sheets("Fluxo").Select
+    Range("C9").Select
+    Selection.Cut
+    Sheets("Saida").Select
+    Range("C5").Select
+    ActiveSheet.Paste
+    Rows("5:5").Select
+    Selection.Insert Shift:=xlDown, CopyOrigin:=xlFormatFromLeftOrAbove
+    Sheets("Fluxo").Select
+    Range("C7").Select
+End Sub
+
+************************************************************
+
+Sub CadNovoUsuario()
+	Sheets("GuardaUsuario").Visible = True
+	Worksheets("GuardaUsuario").Activate
+	If Range("xfd1").Value <> "2" Then
+		MsgBox ("Você não tem autorização para esta Operação")
+		Sheets("GuardaUsuario").Visible = False
+		Worksheets("Menu").Activate
+		Exit Sub
+	End If
+	Sheets("CadUsuario").Visible = True
+	Worksheets("CadUsuario").Activate
+	Range("C5").Select
+End Sub
+
+************************************************************
+
+Sub MenuCad()
+	Sheets("Cadastro").Visible = True
+	Worksheets("Cadastro").Activate
+	Worksheets("Produtos").Visible = True
+	Range("C5").Select
+End Sub
+
+************************************************************
+
+Sub MenuPro()
+	Sheets("Produtos").Visible = True
+	Worksheets("Produtos").Activate
+	Range("A5").Select
+End Sub
+
+************************************************************
+
+Sub MenuEnt()
+	Sheets("Entradas").Visible = True
+	Sheets("Produtos").Visible = True
+	Worksheets("Entradas").Activate
+	Range("A6").Select
+End Sub
+
+************************************************************
+
+Sub MenuVen()
+	Sheets("Vendas").Visible = True
+	Sheets("Produtos").Visible = True
+	Worksheets("Vendas").Activate
+	Range("A6").Select
+End Sub
+
+************************************************************
+
+Sub MenuEst()
+	Sheets("Estoque").Visible = True
+	Sheets("Entradas").Visible = True
+	Sheets("Vendas").Visible = True
+	Worksheets("Estoque").Activate
+	Range("A5").Select
+	Call Estoque
+End Sub
+
+************************************************************
+
+Sub MenuCom()
+	Sheets("Comprar").Visible = True
+	Sheets("Produtos").Visible = True
+	Sheets("Estoque").Visible = True
+	Worksheets("Comprar").Activate
+	Range("A5:C506").Select
+	Selection.ClearContents
+	Range("A5").Select
+	Call Comprar
+End Sub
+
+************************************************************
+
+Sub MenuFlu()
+	Sheets("Fluxo").Visible = True
+	Sheets("Entrada").Visible = True
+	Sheets("Saida").Visible = True
+	Worksheets("Fluxo").Activate
+	Range("C5").Select
+End Sub
+
+************************************************************
+
+Sub MenuFEnt()
+	Sheets("Entrada").Visible = True
+	Worksheets("Entrada").Activate
+	Range("A4").Select
+End Sub
+
+************************************************************
+
+Sub MenuFSai()
+	Sheets("Saida").Visible = True
+	Worksheets("Saida").Activate
+	Range("A4").Select
+End Sub
+
+************************************************************
+
+Sub MenuCadUsu()
+	Sheets("CadUsuario").Visible = True
+	Worksheets("CadUsuario").Activate
+	Range("C5").Select
+End Sub
+
+************************************************************
+
+Sub Menu()
+	Sheets("Menu").Visible = True
+	Worksheets("Menu").Activate
+	Range("A1").Select
+	Sheets("Cadastro").Visible = False
+	Sheets("Produtos").Visible = False
+	Sheets("Entradas").Visible = False
+	Sheets("Vendas").Visible = False
+	Sheets("Estoque").Visible = False
+	Sheets("Comprar").Visible = False
+	Sheets("Fluxo").Visible = False
+	Sheets("Entrada").Visible = False
+	Sheets("Saida").Visible = False
+	Sheets("CadUsuario").Visible = False
+	Sheets("GuardaUsuario").Visible = False
+	ActiveWorkbook.Save
+End Sub
